@@ -42,10 +42,10 @@ options in your language of choice.
 
 # Documentation
 
-See our [project page](Home) for full details of the project.  The
-[Installation] page has additional for detailed instructions on how to install
+See our [project page](https://github.com/davidjurgens/crown/wiki/Home) for full details of the project.  The
+[Installation](https://github.com/davidjurgens/crown/wiki/Installation) page has additional for detailed instructions on how to install
 CROWN on systems and how to integrate the resource with commonly-used software
-libraries.  Also, see our [Frequently Asked Questions] for additional details
+libraries.  Also, see our [Frequently Asked Questions](https://github.com/davidjurgens/crown/wiki/Frequently-Asked-Questions) for additional details
 documentation.
 
 # Credits
