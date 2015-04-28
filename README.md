@@ -13,7 +13,7 @@ requests.
 
 # Why use CROWN?
 
-  * Significantly-expanded vocabulary that inlcudes many missing terms in
+  * Significantly-expanded vocabulary that includes many missing terms in
     WordNet --especially slang, idioms, and domain-specific terminology
   * Seamless compatibility as a drop in replacement for WordNet
   * Regularly updated with new content
@@ -54,7 +54,7 @@ documentation.
   * [Mohammad Taher Pilehvar](http://www.pilevar.com/taher/), Sapienza University of Rome
 
 CROWN is also not possible without the extensive effort by the WordNet team in
-creating the resource and the Wiktioary community in creating and maintaining a
+creating the resource and the Wiktionary community in creating and maintaining a
 community-constructed dictionary.
 
 # Contact
