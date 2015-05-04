@@ -1,3 +1,10 @@
+/* 
+ * This source code is subject to the terms of the Creative Commons
+ * Attribution-NonCommercial-ShareAlike 4.0 license. If a copy of the BY-NC-SA
+ * 4.0 License was not distributed with this file, You can obtain one at
+ * https://creativecommons.org/licenses/by-nc-sa/4.0.
+*/
+
 package ca.mcgill.cs.crown;
 
 import java.io.File;
@@ -67,7 +74,8 @@ import com.google.common.io.Files;
 
 
 /**
- *
+ * The main class for constructing CROWN.  This class is intended to be run as a
+ * command-line executable program.
  */
 public class CrownCreator {
 
@@ -82,6 +90,20 @@ public class CrownCreator {
         this.wordNetLexFileDir = wordNetLexFileDir;
     }
 
+    /**
+     * Attempts to integrate the provided entries into the semantic network,
+     * using the specified number of iterations and writing the output to the
+     * provided directory.
+     *
+     * @param entries the entries to potentially be integrated into the WordNet
+     *        semantic network
+     * @param numIterations the number of iterations in which the collection of
+     *        entries will be attempted to be integrated.  Setting this value to
+     *        more than 1 allows new entries to be hyponyms of other
+     *        newly-integrated entries.
+     * @param outputDir the directory into which the final CROWN dictionary will
+     *        be written
+     */
     public void build(Collection<LexicalEntry> entries,
                       int numIterations, File outputDir) {
         File tmpDir = null;
@@ -89,6 +111,23 @@ public class CrownCreator {
         this.build(entries, numIterations, outputDir, tmpDir);
     }
 
+    /**
+     * Attempts to integrate the provided entries into the semantic network,
+     * using the specified number of iterations and writing the output to the
+     * provided directory and all temporary data to the provided intermediate
+     * directory.
+     *
+     * @param entries the entries to potentially be integrated into the WordNet
+     *        semantic network
+     * @param numIterations the number of iterations in which the collection of
+     *        entries will be attempted to be integrated.  Setting this value to
+     *        more than 1 allows new entries to be hyponyms of other
+     *        newly-integrated entries.   
+     * @param outputDir the directory into which the final CROWN dictionary will
+     *        be written
+     * @param workingDir the directory into which intermediate build files will
+     *        be written (useful for debugging)
+     */
     public void build(Collection<LexicalEntry> entries,
                       int numIterations, File outputDir, File workingDir) {
 
@@ -250,15 +289,6 @@ public class CrownCreator {
         }
 
         return toIntegrate;
-    }
-
-    private void baz() {
-        // List<SomeClass> list = // A list of objects
-        //     Stream<SomeClass> stream =
-        //     list.parallelStream().map(this::veryLongProcessing);
-        // Callable<List<Integer>> task = () -> stream.collect(toList());
-        // ForkJoinPool forkJoinPool = new ForkJoinPool(4);
-        // List<SomeClass> newList = forkJoinPool.submit(task).get()
     }
 
     private void tryIntegrate(LexicalEntry entry,

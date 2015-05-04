@@ -1,3 +1,10 @@
+/* 
+ * This source code is subject to the terms of the Creative Commons
+ * Attribution-NonCommercial-ShareAlike 4.0 license. If a copy of the BY-NC-SA
+ * 4.0 License was not distributed with this file, You can obtain one at
+ * https://creativecommons.org/licenses/by-nc-sa/4.0.
+*/
+
 package ca.mcgill.cs.crown.util;
 
 import edu.mit.jwi.*;
@@ -8,6 +15,10 @@ import java.io.IOException;
 
 import java.util.Iterator;
 
+/**
+ * A wrapper class around JWI's {@link IDictionary} objects that allows
+ * multi-threaded access in a thread-safe manner using synchronization.
+ */
 public class ThreadSafeDictionary implements IDictionary {
 
     private final IDictionary dict;

@@ -28,6 +28,7 @@ directory used by the software with the `WNSEARCHDIR` environment variable. Simp
 download the CROWN data release archive and unpack it. This should create a
 directory called dict containing CROWN. Then set your `WNSEARCHDIR` environment
 variable to the location of this directory, e.g., export
+
     WNSEARCHDIR=/path/to/crown/dict
 
 For a more permanent installation, simply replace the WordNet dict directory in
