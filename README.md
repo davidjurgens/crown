@@ -27,9 +27,9 @@ The software provided with WordNet lets you seamlessly change the dictionary
 directory used by the software with the `WNSEARCHDIR` environment variable. Simply
 download the CROWN data release archive and unpack it. This should create a
 directory called dict containing CROWN. Then set your `WNSEARCHDIR` environment
-variable to the location of this directory, e.g., export
+variable to the location of this directory, e.g., 
 
-    WNSEARCHDIR=/path/to/crown/dict
+    export WNSEARCHDIR=/path/to/crown/dict
 
 For a more permanent installation, simply replace the WordNet dict directory in
 the directory where WordNet is installed (e.g., `/opt/local/share/WordNet-3.0/`)
