@@ -23,7 +23,8 @@ requests.
 
 CROWN is distributed as stand-alone dictionaries in the WordNet format, just
 like WordNet 3.1, from our [Downloads](http://cs.mcgill.ca/~jurgens/crown/)
-site.  See our [Releases] page for full details.
+site.  See our [Releases](https://github.com/davidjurgens/crown/wiki/Releases)
+page for full details.
 
 If you use WordNet on the command line, installation is easy!  The
 software provided with WordNet lets you seamlessly change the dictionary
