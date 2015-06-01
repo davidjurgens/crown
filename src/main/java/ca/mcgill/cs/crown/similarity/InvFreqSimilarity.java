@@ -117,7 +117,7 @@ public class InvFreqSimilarity implements SimilarityFunction {
         for (Map.Entry<String,Integer> e : lemmaCounts) {
             double freq = e.getValue().doubleValue() / numGlosses;
             //System.out.println(e.getKey() + "\t" + freq + "\t" + Math.log(freq));
-            lemmaToWeight.put(e.getKey(), Math.log(freq  / (double)numGlosses));
+            lemmaToWeight.put(e.getKey(), -Math.log(freq  / (double)numGlosses));
         }
         CrownLogger.verbose("Done calculating lemma weights");        
     }

@@ -93,7 +93,7 @@ public class AntonymExtractor implements EnrichmentProcedure {
         if (antonymIw == null)
             return null;
                  
-        double highestSim = -1;
+        double highestSim = 0;
         ISynset bestMatch = null;
 
         // If the antonym lemma only has one sense, so don't bother doing

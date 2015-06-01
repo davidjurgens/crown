@@ -166,7 +166,7 @@ public class SynonymExtractor implements EnrichmentProcedure {
         // ISynset attachmentPoint =
         //     findAttachment(candidateAttachments, combinedGloss);
 
-        double maxScore = -1;
+        double maxScore = 0;
         ISynset best = null;
         String bestGloss = null;
         for (ISynset candidate : candidateAttachments) {
@@ -212,8 +212,7 @@ public class SynonymExtractor implements EnrichmentProcedure {
                 bestGloss = wnExtendedGloss;
             }
         }
-
-        return best;
+        return (maxScore > 0) ? best : null;
     }
 
     /**

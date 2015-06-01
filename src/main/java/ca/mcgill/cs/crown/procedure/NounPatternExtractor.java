@@ -175,7 +175,7 @@ public class NounPatternExtractor implements EnrichmentProcedure {
                 continue;
 
 
-            double maxScore = -1;
+            double maxScore = 0;
             ISynset best = null;
             String bestGloss = null;
             for (ISynset candidate : candidateHypernymSynsets) {

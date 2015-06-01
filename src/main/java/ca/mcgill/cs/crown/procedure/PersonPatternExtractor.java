@@ -142,7 +142,7 @@ public class PersonPatternExtractor implements EnrichmentProcedure {
         // Otherwise, we need to brute force the search over possible attachment
         // points
         ISynset best = null;
-        double highestSim = -1;
+        double highestSim = 0;
         for (Map.Entry<ISynset,String> ent : personSynsetToGloss.entrySet()) {
             ISynset synset = ent.getKey();
             String wnGloss = ent.getValue();

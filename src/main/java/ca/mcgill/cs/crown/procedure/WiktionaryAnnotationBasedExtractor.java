@@ -210,7 +210,7 @@ public class WiktionaryAnnotationBasedExtractor implements EnrichmentProcedure {
 
         String combinedGloss =
             e.getAnnotations().get(CrownAnnotations.Gloss.class);
-        double maxScore = -1;
+        double maxScore = 0;
         ISynset best = null;
         for (ISynset candidate : candidateAttachments) {
             String wnExtendedGloss = WordNetUtils.getExtendedGloss(candidate);

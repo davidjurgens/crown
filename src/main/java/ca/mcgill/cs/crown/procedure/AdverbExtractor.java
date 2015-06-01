@@ -99,7 +99,7 @@ public class AdverbExtractor implements EnrichmentProcedure {
             //
             // NOTE: add 2 to the match length to account for periods.
             else if (gloss.length() > m.end()+2 || glosses.size() > 1) {
-                double maxSim = -1;
+                double maxSim = 0;
                 ISynset best = null;
                 
                 String combGloss =

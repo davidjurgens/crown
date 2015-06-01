@@ -168,7 +168,7 @@ public class AdjectivePatternExtractor implements EnrichmentProcedure {
                 continue;
 
             
-            double maxScore = -1;
+            double maxScore = 0;
             ISynset best = null;
             String bestGloss = null;
             for (ISynset candidate : candidatePertainymSynsets) {
@@ -210,7 +210,7 @@ public class AdjectivePatternExtractor implements EnrichmentProcedure {
             // This is the harder case where we have to figure out which of the
             // existing adjectives this lemma should be merged into
             else {
-                double adjMaxScore = -1;
+                double adjMaxScore = 0;
                 ISynset bestAdj = null;
 
                 for (ISynsetID sid : adjsForNoun) {
@@ -277,7 +277,7 @@ public class AdjectivePatternExtractor implements EnrichmentProcedure {
         // If there was only one lemma in this list in WordNet, try comparing
         // the glosses for just that word to find a match
         if (lemmasInWn.size() == 1) {
-            double maxScore = -1;
+            double maxScore = 0;
             ISynset best = null;
             String bestGloss = null;
             Set<ISynset> candidateSynonymSynsets =
@@ -326,7 +326,7 @@ public class AdjectivePatternExtractor implements EnrichmentProcedure {
             // similarity
             else {
 
-                double maxScore = -1;
+                double maxScore = 0;
                 ISynset best = null;
                 String bestGloss = null;
                 for (ISynset candidate : ties) {

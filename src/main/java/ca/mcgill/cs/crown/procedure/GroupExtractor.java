@@ -154,7 +154,7 @@ public class GroupExtractor implements EnrichmentProcedure {
     private Duple<ISynset,Double> getMostSimilar(Collection<ISynset> syns,
                                                  String gloss) {
         ISynset best = null;
-        double highestSim = -1;
+        double highestSim = 0;
         for (ISynset synset : syns) {
             String wnGloss = WordNetUtils.getGlossWithoutExamples(synset);
             double sim = simFunc.compare(gloss, wnGloss);
@@ -177,57 +177,6 @@ public class GroupExtractor implements EnrichmentProcedure {
         return new Duple<ISynset,Double>(best, highestSim);
     }
     
-    // private AnnotatedLexicalEntry findAttachment(List<String> candidateHypers,
-    //                                              String gloss) {
-    //     for (String hypernymLemma : candidateHypers) {
-    //              POS pos = POS.NOUN;
-             
-    //         // Skip trying to attach senses for which we found they hypernym but
-    //         // in which case that hypernym wasn't in WN/CROWN.
-    //         if (!WordNetUtils.isInWn(dict, hypernymLemma, pos))
-    //             continue;
-
-    //         // Now that we have a hypernym attachment, figure out which sense of
-    //         // the hypernym is most similar to this gloss
-    //         Set<ISynset> candidateHypernymSynsets =
-    //             WordNetUtils.getSynsets(dict, hypernymLemma, pos);
-
-    //         if (candidateHypernymSynsets.isEmpty())
-    //             continue;
-
-
-
-    //         double maxScore = -1;
-    //         ISynset best = null;
-    //         String bestGloss = null;
-    //         for (ISynset candidate : candidateHypernymSynsets) {
-    //             String wnExtendedGloss =
-    //                 WordNetUtils.getExtendedGloss(candidate);
-    //             double score = simFunc.compare(gloss, wnExtendedGloss);
-
-    //             if (maxScore < score) {
-    //                 maxScore = score;
-    //                 best = candidate;
-    //                 bestGloss = wnExtendedGloss;
-    //             }
-    //         }
-
-    //         // Check that this sense isn't already in WN near where we're trying
-    //         // to put it
-    //         if (WordNetUtils.isAlreadyInWordNet(dict, e.getLemma(), pos,best)) {
-    //             continue;
-    //         }
-
-    //         // Choose the most similar gloss.
-    //         AnnotatedLexicalEntry ale = new AnnotatedLexicalEntryImpl(e);
-    //         CrownOperations.Reason r = new CrownOperations.Reason(getClass());
-    //         r.set("heuristic", "group-noun");
-    //         r.set("max_score", maxScore);
-    //         ale.setOp(CrownOperations.Hypernym.class, r, best);
-    //         return ale;
-    //     }
-    //     return null;
-    // }    
 
     private void loadGroupData() {
         IIndexWord groupIw = dict.getIndexWord("group", POS.NOUN);

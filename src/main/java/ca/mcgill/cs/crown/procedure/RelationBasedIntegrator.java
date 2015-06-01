@@ -146,7 +146,7 @@ public class RelationBasedIntegrator implements EnrichmentProcedure {
         // If there was only one lemma in this list in WordNet, try comparing
         // the glosses for just that word to find a match
         if (lemmasInWn.size() == 1) {
-            double maxScore = -1;
+            double maxScore = 0;
             ISynset best = null;
             String bestGloss = null;
             Set<ISynset> candidateSynonymSynsets =
@@ -195,7 +195,7 @@ public class RelationBasedIntegrator implements EnrichmentProcedure {
             // similarity
             else {
 
-                double maxScore = -1;
+                double maxScore = 0;
                 ISynset best = null;
                 String bestGloss = null;
                 for (ISynset candidate : ties) {

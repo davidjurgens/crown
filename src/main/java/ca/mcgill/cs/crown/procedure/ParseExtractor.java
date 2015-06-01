@@ -226,6 +226,8 @@ public class ParseExtractor implements EnrichmentProcedure {
                 int i = rawGloss.indexOf("[[");
                 while (i >= 0) {
                     int j = rawGloss.indexOf("]]", i);
+                    if (j < i)
+                        break;
                     String text = rawGloss.substring(i+2, j);
                     
                     // See if this is a compound term

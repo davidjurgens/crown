@@ -185,16 +185,6 @@ public class WikiMarkupExtractor implements EnrichmentProcedure {
     private Duple<CrownOperations.Reason,ISynset> findSense(
             List<String> candidateHypers, LexicalEntry e,
             String cleanedGloss) {
-
-        // if (cleanedGloss.length() == 0) {
-        //     if (candidateHypers.size() == 1) {
-
-        //     }
-        //     else {
-
-        //     }
-        // }
-        
         
         for (String hypernymLemma : candidateHypers) {
                  POS pos = POS.NOUN;
@@ -212,7 +202,7 @@ public class WikiMarkupExtractor implements EnrichmentProcedure {
             if (candidateHypernymSynsets.isEmpty())
                 continue;
 
-            double maxScore = -1;
+            double maxScore = 0;
             ISynset best = null;
             String bestGloss = null;
             for (ISynset candidate : candidateHypernymSynsets) {
