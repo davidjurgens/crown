@@ -117,6 +117,9 @@ public class AdverbExtractor implements EnrichmentProcedure {
                     }
                 }
 
+                if (best == null)
+                    continue;
+                
                 // buildState.relate(sense, "derivationally-from-adjective",
                 //                   best, "pattern-based:adverb:adw-sim");
                 AnnotatedLexicalEntry ale = new AnnotatedLexicalEntryImpl(e);
