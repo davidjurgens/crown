@@ -116,6 +116,9 @@ public class VerbPatternExtractor implements EnrichmentProcedure {
                 }
             }
 
+            if (best == null)
+                continue;
+            
             // Check that this sense isn't already in WN near where we're trying
             // to put it
             if (WordNetUtils.isAlreadyInWordNet(dict, e.getLemma(),
