@@ -228,6 +228,9 @@ public class AdjectivePatternExtractor implements EnrichmentProcedure {
                     }
                 }
 
+                if (bestAdj == null)
+                    continue;
+
                 AnnotatedLexicalEntry ale = new AnnotatedLexicalEntryImpl(e);
                 CrownOperations.Reason r = new CrownOperations.Reason(getClass());
                 r.set("heuristic", "pertainyms");
@@ -292,6 +295,8 @@ public class AdjectivePatternExtractor implements EnrichmentProcedure {
                     bestGloss = wnExtendedGloss;
                 }
             }
+            if (best = null)
+                return null;
             
             CrownOperations.Reason r = new CrownOperations.Reason(getClass());
             r.set("relation_type", "synonym");
@@ -339,6 +344,8 @@ public class AdjectivePatternExtractor implements EnrichmentProcedure {
                         bestGloss = wnExtendedGloss;
                     }
                 }
+                if (best == null)
+                    return null;
                 
                 CrownOperations.Reason r = new CrownOperations.Reason(getClass());
                 r.set("relation_type", "synonym");
