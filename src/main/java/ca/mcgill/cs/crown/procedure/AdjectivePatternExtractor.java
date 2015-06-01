@@ -295,7 +295,7 @@ public class AdjectivePatternExtractor implements EnrichmentProcedure {
                     bestGloss = wnExtendedGloss;
                 }
             }
-            if (best = null)
+            if (best == null)
                 return null;
             
             CrownOperations.Reason r = new CrownOperations.Reason(getClass());
