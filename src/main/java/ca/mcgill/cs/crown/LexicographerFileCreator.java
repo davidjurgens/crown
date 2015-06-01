@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import edu.mit.jwi.IDictionary;
 
 import edu.mit.jwi.item.ISynset;
+import edu.mit.jwi.item.IWord;
 import edu.mit.jwi.item.POS;
 
 import edu.ucla.sspace.util.Counter;
@@ -76,6 +77,8 @@ public class LexicographerFileCreator {
      */
     private static final int MAX_POINTERS = 800;
 
+    private static final int MAX_SENSES = 100;
+    
     private static final  Pattern VALID_LEMMA =
         Pattern.compile("[a-zA-Z_0-9\\-']+[a-zA-Z0-9]");
 
@@ -120,9 +123,17 @@ public class LexicographerFileCreator {
      */
     private final Counter<ISynset> pointerCounts;
 
+    /**
+     * The count for the number of senses for each word and POS pair.  We need
+     * to keep track of this to avoid going over the maximum number of senses
+     * per lemma.
+     */
+    private final Counter<Duple<String,POS>> senseCounts;
+
     public LexicographerFileCreator(IDictionary dict) {
         this.dict = dict;
         pointerCounts = new ObjectCounter<ISynset>(250_000);
+        senseCounts = new ObjectCounter<Duple<String,POS>>(250_000);
     }
 
     public List<AnnotatedLexicalEntry> integrate(
@@ -146,6 +157,10 @@ public class LexicographerFileCreator {
                 int count = syn.getRelatedMap().size();
                 if (count > 0)
                     pointerCounts.count(syn, count);
+
+                for (IWord iw : syn.getWords()) {
+                    senseCounts.count(new Duple<String,POS>(iw.getLemma(),pos));
+                }                                                    
             }
         }
 
@@ -350,6 +365,13 @@ public class LexicographerFileCreator {
             String lemma = toAttach.getLemma();
             POS pos = toAttach.getPos();
 
+            // Check that we haven't exceeded the maximum number of senses for
+            // this lemma
+            if (senseCounts.getCount(new Duple<String,POS>(lemma, pos))
+                    > MAX_SENSES) {
+                continue;
+            }
+            
             String hypernymLexFileId = synsetToLexFileId.get(hypernym);
             assert hypernymLexFileId != null
                 : "Unmapped synset in the lexicographer files: " + hypernym;
@@ -468,6 +490,7 @@ public class LexicographerFileCreator {
 
             pointerCounts.count(hypernym);
             incorporated.add(toAttach);
+            senseCounts.count(new Duple<String,POS>(lemma, pos));
         }
 
         for (PrintWriter pw : posToLexFile.values())
@@ -625,6 +648,7 @@ public class LexicographerFileCreator {
             }
             
             incorporated.add(ent);
+            senseCounts.count(new Duple<String,POS>(lemma, pos));            
         }
 
         for (PrintWriter pw : posToLexFile.values())
@@ -907,6 +931,8 @@ public class LexicographerFileCreator {
                         }
                         
                         incorporated.add(ale);
+                        senseCounts.count(new Duple<String,POS>(
+                                              lemma, ale.getPos()));
                         sb.append(lemmaId).append(", ");
                     }
                     sb.append(line.substring(firstSpaceIndex+2));
@@ -942,6 +968,8 @@ public class LexicographerFileCreator {
                         }
                         
                         incorporated.add(ale);
+                        senseCounts.count(new Duple<String,POS>(
+                                             lemma, ale.getPos()));
                         sb.append(lemmaId).append(", ");
                     }
                     sb.append(line.substring(bracketEnd+2));
@@ -1334,6 +1362,7 @@ public class LexicographerFileCreator {
                     continue;
 
                 incorporated.add(ale);
+                senseCounts.count(new Duple<String,POS>(lemma, ale.getPos()));
                 sb.append(lemmaId).append(", ");
             }
             sb.append(entry.substring(firstSpaceIndex+2));
@@ -1374,6 +1403,7 @@ public class LexicographerFileCreator {
                     continue;
 
                 incorporated.add(ale);
+                senseCounts.count(new Duple<String,POS>(lemma, ale.getPos()));
                 sb.append(lemmaId).append(", ");
             }
             sb.append(entry.substring(bracketEnd+2));
@@ -1477,7 +1507,9 @@ public class LexicographerFileCreator {
                     continue;
                 }
 
-                incorporated.add(ale);
+                // NOTE: no need to update the sense or pointer counts for the
+                // entry since lexicalization do not count towards the maximums
+                incorporated.add(ale);              
 
                 // If Wiktionary's official-baseForm order is reversed, flip the
                 // texts
