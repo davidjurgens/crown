@@ -56,8 +56,9 @@ import ca.mcgill.cs.crown.procedure.DomainLinkAugmenter;
 import ca.mcgill.cs.crown.procedure.GroupExtractor;
 import ca.mcgill.cs.crown.procedure.NearSynonymExtractor;
 import ca.mcgill.cs.crown.procedure.NounPatternExtractor;
-import ca.mcgill.cs.crown.procedure.RelationBasedIntegrator;
+import ca.mcgill.cs.crown.procedure.ParseExtractor;
 import ca.mcgill.cs.crown.procedure.PersonPatternExtractor;
+import ca.mcgill.cs.crown.procedure.RelationBasedIntegrator;
 import ca.mcgill.cs.crown.procedure.SynonymExtractor;
 import ca.mcgill.cs.crown.procedure.TaxonomicExtractor;
 import ca.mcgill.cs.crown.procedure.VerbPatternExtractor;
@@ -65,6 +66,7 @@ import ca.mcgill.cs.crown.procedure.WiktionaryAnnotationBasedExtractor;
 import ca.mcgill.cs.crown.procedure.WikiMarkupExtractor;
 
 import ca.mcgill.cs.crown.similarity.GreedyStringTiling;
+import ca.mcgill.cs.crown.similarity.InvFreqSimilarity;
 import ca.mcgill.cs.crown.similarity.SimilarityFunction;
 
 import ca.mcgill.cs.crown.util.CrownLogger;
@@ -144,11 +146,14 @@ public class CrownCreator {
 
         // TODO: one day replace this with ADW when it proves fast enough, or at
         // least test it out, whre possible
-        SimilarityFunction gst = new GreedyStringTiling(4);
+        SimilarityFunction gst =
+            // new GreedyStringTiling(4);
+            new InvFreqSimilarity(entries, dict);
 
         List<AnnotatedLexicalEntry> toIntegrate =
             new ArrayList<AnnotatedLexicalEntry>(500_000);
         BuildPipeline pipeline = new BuildPipeline();
+                
         pipeline.add(new WiktionaryAnnotationBasedExtractor(dict, gst));
         pipeline.add(new RelationBasedIntegrator(dict, gst));
         pipeline.add(new AntonymExtractor(dict, gst));
@@ -158,11 +163,14 @@ public class CrownCreator {
         pipeline.add(new TaxonomicExtractor(dict, gst));
         pipeline.add(new GroupExtractor(dict, gst));
         pipeline.add(new PersonPatternExtractor(dict, gst));
+        pipeline.add(new ParseExtractor(dict, gst));
         pipeline.add(new ConjunctionProcedure(dict, gst));
         pipeline.add(new WikiMarkupExtractor(dict, gst));
         pipeline.add(new VerbPatternExtractor(dict, gst));
         pipeline.add(new NounPatternExtractor(dict, gst));
         pipeline.add(new AdjectivePatternExtractor(dict, gst));
+        
+        
         // For adding pointers
         pipeline.add(new DomainLinkAugmenter(dict, gst));
         
