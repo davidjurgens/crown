@@ -163,6 +163,8 @@ public class WikiMarkupExtractor implements EnrichmentProcedure {
                     CrownOperations.Reason r = op.x;
                     r.set("heuristic", heuristicName);
                     ISynset related = op.y;
+                    if (related == null)
+                        continue;
                     
                     // See if this sense is slang.  If so, we'll attach this
                     // sense as a hypernym.  Otherwise, we'll keep it as a
