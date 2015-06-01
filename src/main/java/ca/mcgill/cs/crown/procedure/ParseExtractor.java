@@ -97,7 +97,7 @@ public class ParseExtractor implements EnrichmentProcedure {
         POS pos = e.getPos();
         String entGloss = e.getAnnotations().get(CrownAnnotations.Gloss.class);
 
-        double maxScore = -1;
+        double maxScore = 0;
         ISynset best = null;
         String bestGloss = null;
         Set<String> bestHeuristics = null;
@@ -168,7 +168,6 @@ public class ParseExtractor implements EnrichmentProcedure {
         else 
             ale.setOp(CrownOperations.Hypernym.class, r, best);
 
-        // System.out.printf("For %s.%s, found %d lemmas and %d total synsets.  Ultimate selected %s%n%n", e.getLemma(), e.getPos(), lemmaToHeuristics.size(), numSynsets, ale);
         return ale;
     }
     
