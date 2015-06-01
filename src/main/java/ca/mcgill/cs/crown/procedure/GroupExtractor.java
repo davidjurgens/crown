@@ -162,19 +162,19 @@ public class GroupExtractor implements EnrichmentProcedure {
                 highestSim = sim;
                 best = synset;
             }
-        }
-
-        if (best == null) {            
-            for (ISynset synset : syns) {
-                String wnGloss = WordNetUtils.getGlossWithoutExamples(synset);
-                double sim = simFunc.compare(gloss, wnGloss);
-                System.out.printf("ERROR CASE: %f for \"%s\" and \"%s\"%n",
-                                  sim, gloss, wnGloss);
-            }
-            throw new AssertionError();
-        }
+        }        
         
-        return new Duple<ISynset,Double>(best, highestSim);
+        // if (best == null) {            
+        //     for (ISynset synset : syns) {
+        //         String wnGloss = WordNetUtils.getGlossWithoutExamples(synset);
+        //         double sim = simFunc.compare(gloss, wnGloss);
+        //         System.out.printf("ERROR CASE: %f for \"%s\" and \"%s\"%n",
+        //                           sim, gloss, wnGloss);
+        //     }
+        //     throw new AssertionError();
+        // }
+        
+        return (best == null) ? null : new Duple<ISynset,Double>(best, highestSim);
     }
     
 

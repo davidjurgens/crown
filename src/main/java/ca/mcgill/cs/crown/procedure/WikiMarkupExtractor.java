@@ -219,6 +219,10 @@ public class WikiMarkupExtractor implements EnrichmentProcedure {
                 }
             }
 
+            if (best == null)
+                continue;
+
+            /*
             assert best != null : "no match made";
 
             if (best == null) {
@@ -237,7 +241,7 @@ public class WikiMarkupExtractor implements EnrichmentProcedure {
                                       sim, cleanedGloss, wnGloss);            
                 }
             }
-            
+            */            
             
             //System.out.printf("For %s, best: %s, sim: %f%n", e, best, maxScore);
             

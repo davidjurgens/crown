@@ -92,7 +92,7 @@ public class NounPatternExtractor implements EnrichmentProcedure {
                 if (m.find()) {
                     String firstMatchingTerm =
                         m.group(1); //.replaceAll("[\\p{Punct}]+$", "").trim();
-
+                    
                     
                     List<String> candidates = GlossUtils.extractNounCandidates(
                         dict, gloss, firstMatchingTerm, m.start(1));
@@ -203,6 +203,9 @@ public class NounPatternExtractor implements EnrichmentProcedure {
                 continue;
             }
            
+            if (best == null)
+                return null;
+
             // Choose the most similar gloss.
             AnnotatedLexicalEntry ale = new AnnotatedLexicalEntryImpl(e);
             CrownOperations.Reason r = new CrownOperations.Reason(getClass());
