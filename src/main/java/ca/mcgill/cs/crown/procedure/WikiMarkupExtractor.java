@@ -344,6 +344,9 @@ public class WikiMarkupExtractor implements EnrichmentProcedure {
                 }
             }
 
+            if (best == null)
+                continue;
+            
             // Check that this sense isn't already in WN near where we're trying
             // to put it
             if (WordNetUtils.isAlreadyInWordNet(dict, e.getLemma(),
@@ -351,22 +354,22 @@ public class WikiMarkupExtractor implements EnrichmentProcedure {
                 continue;
             }
 
-            if (best == null) {
-                for (Map.Entry<String,String> g2 : rawGlosses.entrySet()) {
-                    System.out.printf("ERROR CASE, RAW: \"%s\"  ==> \"%s\"%n",
-                                      g2.getKey(), g2.getValue());
-                }
-                for (ISynset synset : candidateHypernymSynsets) {
-                    String wnGloss = WordNetUtils.getGlossWithoutExamples(synset);
-                    double sim = simFunc.compare(cleanedGloss, wnGloss);
-                    System.out.printf("ERROR CASE: %f for \"%s\" and \"%s\"%n",
-                                      sim, cleanedGloss, wnGloss);            
-                }
-            }
+            // if (best == null) {
+            //     for (Map.Entry<String,String> g2 : rawGlosses.entrySet()) {
+            //         System.out.printf("ERROR CASE, RAW: \"%s\"  ==> \"%s\"%n",
+            //                           g2.getKey(), g2.getValue());
+            //     }
+            //     for (ISynset synset : candidateHypernymSynsets) {
+            //         String wnGloss = WordNetUtils.getGlossWithoutExamples(synset);
+            //         double sim = simFunc.compare(cleanedGloss, wnGloss);
+            //         System.out.printf("ERROR CASE: %f for \"%s\" and \"%s\"%n",
+            //                           sim, cleanedGloss, wnGloss);            
+            //     }
+            // }
 
             // Choose the most similar gloss.
             if (best != null) {
-                AnnotatedLexicalEntry ale = new AnnotatedLexicalEntryImpl(e);            
+                AnnotatedLexicalEntry ale = new AnnotatedLexicalEntryImpl(e);
                 CrownOperations.Reason r = new CrownOperations.Reason(getClass());
                 r.set("heuristic", "linked-verb");
                 r.set("max_score", maxScore);
