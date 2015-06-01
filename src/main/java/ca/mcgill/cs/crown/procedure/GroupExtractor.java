@@ -120,6 +120,8 @@ public class GroupExtractor implements EnrichmentProcedure {
                     // See which of these we should link to
                     Duple<ISynset,Double> bestAndScore =
                         getMostSimilar(meroSyns, restOfGloss);
+                    if (bestAndScore == null)
+                        continue;
                     ISynset meroSyn = bestAndScore.x;
                     double highestSim = bestAndScore.y;
                     
