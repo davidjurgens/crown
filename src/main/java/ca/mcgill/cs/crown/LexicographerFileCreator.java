@@ -193,6 +193,14 @@ public class LexicographerFileCreator {
             if (!isValidEntry(ale))
                 continue;
 
+
+            // Check that we haven't exceeded the maximum number of senses for
+            // this lemma
+            if (senseCounts.getCount(new Duple<String,POS>(
+                    ale.getLemma(), ale.getPos())) > MAX_SENSES) {
+                continue;
+            }           
+            
             // If the entry is listed as an exception, send it to that
             // processing, regardless of what else we were supposed to do (In
             // practice, it should *only* be a lexicalization anyway, so this is
@@ -203,8 +211,7 @@ public class LexicographerFileCreator {
                 exceptionOps.add(ale);
                 continue;
             }
-
-
+            
             Duple<Reason,ISynset> mergeOp = ale.getOperations()
                 .get(CrownOperations.Synonym.class);
             Duple<Reason,ISynset> hypAttachOp = ale.getOperations()
@@ -282,6 +289,13 @@ public class LexicographerFileCreator {
         // See http://wordnet.princeton.edu/man/morphy.7WN.html
         integrated.addAll(
             createExceptionFiles(exceptionOps, oldDictDir, newDictDir));
+
+        PrintWriter tmp = new PrintWriter("sense-counts.tsv");
+        for (Map.Entry<Duple<String,POS>,Integer> e9 : senseCounts) {
+            Duple<String,POS> d = e9.getKey();
+            tmp.println(d.x + "\t" + d.y + "\t" + e9.getValue());
+        }
+        tmp.close();
         
         return integrated;
     }
