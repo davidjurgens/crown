@@ -75,9 +75,9 @@ public class LexicographerFileCreator {
      * lower because using higher counts (but under the limit) still seem to
      * break grind.
      */
-    private static final int MAX_POINTERS = 800;
+    private static final int MAX_POINTERS = 500;
 
-    private static final int MAX_SENSES = 100;
+    private static final int MAX_SENSES = 80;
     
     private static final  Pattern VALID_LEMMA =
         Pattern.compile("[a-zA-Z_0-9\\-']+[a-zA-Z0-9]");
@@ -412,6 +412,7 @@ public class LexicographerFileCreator {
                     continue;
                 
                 Iterator<Duple<Reason,ISynset>> iter = relatedSyns.iterator();
+                next_relation:
                 while (iter.hasNext()) {
                     Duple<Reason,ISynset> dup = iter.next();
                     ISynset related = dup.y;
@@ -420,6 +421,16 @@ public class LexicographerFileCreator {
                         iter.remove();
                         continue;
                     }
+                    for (IWord iw : related.getWords()) {
+                        if (senseCounts.getCount(new Duple<String,POS>(
+                                                 iw.getLemma(), iw.getPOS()))
+                                > MAX_SENSES) {
+                            iter.remove();
+                            continue next_relation;
+                        }
+                    }
+
+
                     pointerCounts.count(related);
                     String relatedLexId = synsetToLexFileId.get(related);
                     assert relatedLexId != null
@@ -430,6 +441,7 @@ public class LexicographerFileCreator {
                 if (relatedSyns.isEmpty())
                     operations.remove(op);
             }
+            next_single_arg_relation:
             for (Class<? extends CoreAnnotation<Duple<Reason,ISynset>>> op
                      : CrownOperations.SINGLE_ARG_OPERATIONS) {
                 Duple<Reason,ISynset> dup = operations.get(op);
@@ -447,6 +459,17 @@ public class LexicographerFileCreator {
                     operations.remove(op);
                     continue;
                 }
+
+                for (IWord iw : related.getWords()) {
+                    if (senseCounts.getCount(new Duple<String,POS>(
+                                             iw.getLemma(), iw.getPOS()))
+                            > MAX_SENSES) {
+                        operations.remove(op);
+                        continue next_single_arg_relation;
+                    }
+                }
+
+
                 pointerCounts.count(related);
                 String relatedLexId = synsetToLexFileId.get(related);
                 assert relatedLexId != null
@@ -571,6 +594,7 @@ public class LexicographerFileCreator {
             Map<String,String> lexfileIdToOtherRelation
                 = new HashMap<String,String>();
             CoreMap operations = ent.getOperations();
+            next_set_arg_operation:
             for (Class<? extends CoreAnnotation<Set<Duple<Reason,ISynset>>>> op
                      : CrownOperations.SET_ARG_OPERATIONS) {
                 Set<Duple<Reason,ISynset>> relatedSyns = operations.get(op);
@@ -592,6 +616,18 @@ public class LexicographerFileCreator {
                         iter.remove();
                         continue;
                     }
+                    
+                    for (IWord iw : related.getWords()) {
+                        if (senseCounts.getCount(new Duple<String,POS>(
+                                             iw.getLemma(), iw.getPOS()))
+                            > MAX_SENSES) {
+                        iter.remove();
+                        continue next_set_arg_operation;
+                        }
+                    }
+
+
+
                     pointerCounts.count(related);
                     String relatedLexId = synsetToLexFileId.get(related);
                     assert relatedLexId != null
@@ -602,6 +638,7 @@ public class LexicographerFileCreator {
                 if (relatedSyns.isEmpty())
                     operations.remove(op);
             }
+            next_sao:
             for (Class<? extends CoreAnnotation<Duple<Reason,ISynset>>> op
                      : CrownOperations.SINGLE_ARG_OPERATIONS) {
                 Duple<Reason,ISynset> dup = operations.get(op);
@@ -619,6 +656,15 @@ public class LexicographerFileCreator {
                     operations.remove(op);
                     continue;
                 }
+                for (IWord iw : related.getWords()) {
+                    if (senseCounts.getCount(new Duple<String,POS>(
+                                             iw.getLemma(), iw.getPOS()))
+                            > MAX_SENSES) {
+                        continue next_sao;
+                    }
+                }
+
+
                 pointerCounts.count(related);
                 String relatedLexId = synsetToLexFileId.get(related);
                 assert relatedLexId != null
