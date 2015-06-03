@@ -84,7 +84,6 @@ public class InvFreqSimilarity implements SimilarityFunction {
 	
     public InvFreqSimilarity(Collection<LexicalEntry> entries,
                              IDictionary dict) {
-        CrownLogger.verbose("Calculating lemma weights");
 
         lemmaToWeight = new TObjectDoubleHashMap<String>(entries.size());
         // NOTE: make this some kind of proper cache?
@@ -94,32 +93,7 @@ public class InvFreqSimilarity implements SimilarityFunction {
         props.put("annotators", "tokenize, ssplit, pos, lemma");
         pipeline = new StanfordCoreNLP(props);
 
-        Counter<String> lemmaCounts = new ObjectCounter<String>();
-        int numGlosses = 0;
-
-        for (LexicalEntry e : entries) {
-            String gloss =
-                e.getAnnotations().get(CrownAnnotations.Gloss.class);
-            ++numGlosses;
-            for (String lemma : getLemmas(gloss))
-                lemmaCounts.count(lemma);
-        }
-
-        for (POS pos : POS.values()) {
-            Iterator <ISynset> iter = dict.getSynsetIterator(pos);
-            while (iter.hasNext()) {
-                ISynset synset = iter.next();
-                for (String lemma : getLemmas(synset.getGloss()))
-                    lemmaCounts.count(lemma);
-            }
-        }
-        
-        for (Map.Entry<String,Integer> e : lemmaCounts) {
-            double freq = e.getValue().doubleValue() / numGlosses;
-            //System.out.println(e.getKey() + "\t" + freq + "\t" + Math.log(freq));
-            lemmaToWeight.put(e.getKey(), -Math.log(freq  / (double)numGlosses));
-        }
-        CrownLogger.verbose("Done calculating lemma weights");        
+        reset(dict, entries);
     }
 
     /**
@@ -158,7 +132,6 @@ public class InvFreqSimilarity implements SimilarityFunction {
         }
         return lemmas;
     }
-
     
     /**
      * {@inheritDoc}
@@ -178,5 +151,35 @@ public class InvFreqSimilarity implements SimilarityFunction {
                 weightSum += lemmaToWeight.get(s);
         }
         return weightSum;
+    }
+
+    public void reset(IDictionary dict, Collection<LexicalEntry> entries) {
+        CrownLogger.verbose("Calculating lemma weights");
+        Counter<String> lemmaCounts = new ObjectCounter<String>();
+        int numGlosses = 0;
+
+        for (LexicalEntry e : entries) {
+            String gloss =
+                e.getAnnotations().get(CrownAnnotations.Gloss.class);
+            ++numGlosses;
+            for (String lemma : getLemmas(gloss))
+                lemmaCounts.count(lemma);
+        }
+
+        for (POS pos : POS.values()) {
+            Iterator <ISynset> iter = dict.getSynsetIterator(pos);
+            while (iter.hasNext()) {
+                ISynset synset = iter.next();
+                for (String lemma : getLemmas(synset.getGloss()))
+                    lemmaCounts.count(lemma);
+            }
+        }
+        
+        for (Map.Entry<String,Integer> e : lemmaCounts) {
+            double freq = e.getValue().doubleValue() / numGlosses;
+            //System.out.println(e.getKey() + "\t" + freq + "\t" + Math.log(freq));
+            lemmaToWeight.put(e.getKey(), -Math.log(freq  / (double)numGlosses));
+        }
+        CrownLogger.verbose("Done calculating lemma weights");        
     }
 }

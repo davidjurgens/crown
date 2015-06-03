@@ -52,6 +52,9 @@ public class DomainLinkAugmenter implements AugmentationProcedure {
             "uncountable", "countable", "rare", "archaic", "transitive",
             "figurative", "slang", "humorous", "vulgar", "pejorative",
             "dated", "obsolete", "intransitive", "offensive", "colloquial",
+            // Too much cruft from these links
+            "US", "UK", "Australia", "Ireand", "New Zealand", "Scotland",
+            "British", "North America", 
         };
         EXCLUDED_DOMAINS.addAll(Arrays.asList(domains));
     }

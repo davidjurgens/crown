@@ -77,7 +77,7 @@ public class LexicographerFileCreator {
      */
     private static final int MAX_POINTERS = 500;
 
-    private static final int MAX_SENSES = 80;
+    private static final int MAX_SENSES = 99;
     
     private static final  Pattern VALID_LEMMA =
         Pattern.compile("[a-zA-Z_0-9\\-']+[a-zA-Z0-9]");
@@ -124,16 +124,18 @@ public class LexicographerFileCreator {
     private final Counter<ISynset> pointerCounts;
 
     /**
-     * The count for the number of senses for each word and POS pair.  We need
-     * to keep track of this to avoid going over the maximum number of senses
-     * per lemma.
+     * The count for the number of senses for each word <strike>and POS
+     * pair</strike> -- apparently sense counts are per lemma only.  We need to
+     * keep track of this to avoid going over the maximum number of senses per
+     * lemma.
      */
-    private final Counter<Duple<String,POS>> senseCounts;
+    //private final Counter<Duple<String,POS>> senseCounts;
+    private final Counter<String> senseCounts;
 
     public LexicographerFileCreator(IDictionary dict) {
         this.dict = dict;
         pointerCounts = new ObjectCounter<ISynset>(250_000);
-        senseCounts = new ObjectCounter<Duple<String,POS>>(250_000);
+        senseCounts = new ObjectCounter<String>(250_000);
     }
 
     public List<AnnotatedLexicalEntry> integrate(
@@ -159,7 +161,7 @@ public class LexicographerFileCreator {
                     pointerCounts.count(syn, count);
 
                 for (IWord iw : syn.getWords()) {
-                    senseCounts.count(new Duple<String,POS>(iw.getLemma(),pos));
+                    senseCounts.count(iw.getLemma());
                 }                                                    
             }
         }
@@ -196,8 +198,7 @@ public class LexicographerFileCreator {
 
             // Check that we haven't exceeded the maximum number of senses for
             // this lemma
-            if (senseCounts.getCount(new Duple<String,POS>(
-                    ale.getLemma(), ale.getPos())) > MAX_SENSES) {
+            if (senseCounts.getCount(ale.getLemma()) > MAX_SENSES) {
                 continue;
             }           
             
@@ -291,9 +292,15 @@ public class LexicographerFileCreator {
             createExceptionFiles(exceptionOps, oldDictDir, newDictDir));
 
         PrintWriter tmp = new PrintWriter("sense-counts.tsv");
-        for (Map.Entry<Duple<String,POS>,Integer> e9 : senseCounts) {
-            Duple<String,POS> d = e9.getKey();
-            tmp.println(d.x + "\t" + d.y + "\t" + e9.getValue());
+        for (Map.Entry<String,Integer> e9 : senseCounts) {
+            //Duple<String,POS> d = e9.getKey();
+            tmp.println(e9.getKey() + "\t" + e9.getValue());
+        }
+        tmp.close();
+
+        tmp = new PrintWriter("pointer-counts.tsv");
+        for (Map.Entry<ISynset,Integer> e9 : pointerCounts) {
+            tmp.println(e9.getKey() + "\t" + e9.getValue());
         }
         tmp.close();
         
@@ -381,8 +388,7 @@ public class LexicographerFileCreator {
 
             // Check that we haven't exceeded the maximum number of senses for
             // this lemma
-            if (senseCounts.getCount(new Duple<String,POS>(lemma, pos))
-                    > MAX_SENSES) {
+            if (senseCounts.getCount(lemma) > MAX_SENSES) {
                 continue;
             }
             
@@ -436,9 +442,7 @@ public class LexicographerFileCreator {
                         continue;
                     }
                     for (IWord iw : related.getWords()) {
-                        if (senseCounts.getCount(new Duple<String,POS>(
-                                                 iw.getLemma(), iw.getPOS()))
-                                > MAX_SENSES) {
+                        if (senseCounts.getCount(iw.getLemma()) > MAX_SENSES) {
                             iter.remove();
                             continue next_relation;
                         }
@@ -475,9 +479,7 @@ public class LexicographerFileCreator {
                 }
 
                 for (IWord iw : related.getWords()) {
-                    if (senseCounts.getCount(new Duple<String,POS>(
-                                             iw.getLemma(), iw.getPOS()))
-                            > MAX_SENSES) {
+                    if (senseCounts.getCount(iw.getLemma()) > MAX_SENSES) {
                         operations.remove(op);
                         continue next_single_arg_relation;
                     }
@@ -527,7 +529,7 @@ public class LexicographerFileCreator {
 
             pointerCounts.count(hypernym);
             incorporated.add(toAttach);
-            senseCounts.count(new Duple<String,POS>(lemma, pos));
+            senseCounts.count(lemma);
         }
 
         for (PrintWriter pw : posToLexFile.values())
@@ -632,9 +634,7 @@ public class LexicographerFileCreator {
                     }
                     
                     for (IWord iw : related.getWords()) {
-                        if (senseCounts.getCount(new Duple<String,POS>(
-                                             iw.getLemma(), iw.getPOS()))
-                            > MAX_SENSES) {
+                        if (senseCounts.getCount(iw.getLemma()) > MAX_SENSES) {
                         iter.remove();
                         continue next_set_arg_operation;
                         }
@@ -671,9 +671,7 @@ public class LexicographerFileCreator {
                     continue;
                 }
                 for (IWord iw : related.getWords()) {
-                    if (senseCounts.getCount(new Duple<String,POS>(
-                                             iw.getLemma(), iw.getPOS()))
-                            > MAX_SENSES) {
+                    if (senseCounts.getCount(iw.getLemma()) > MAX_SENSES) {
                         continue next_sao;
                     }
                 }
@@ -708,7 +706,7 @@ public class LexicographerFileCreator {
             }
             
             incorporated.add(ent);
-            senseCounts.count(new Duple<String,POS>(lemma, pos));            
+            senseCounts.count(lemma);            
         }
 
         for (PrintWriter pw : posToLexFile.values())
@@ -991,8 +989,7 @@ public class LexicographerFileCreator {
                         }
                         
                         incorporated.add(ale);
-                        senseCounts.count(new Duple<String,POS>(
-                                              lemma, ale.getPos()));
+                        senseCounts.count(lemma);
                         sb.append(lemmaId).append(", ");
                     }
                     sb.append(line.substring(firstSpaceIndex+2));
@@ -1028,8 +1025,7 @@ public class LexicographerFileCreator {
                         }
                         
                         incorporated.add(ale);
-                        senseCounts.count(new Duple<String,POS>(
-                                             lemma, ale.getPos()));
+                        senseCounts.count(lemma);
                         sb.append(lemmaId).append(", ");
                     }
                     sb.append(line.substring(bracketEnd+2));
@@ -1422,7 +1418,7 @@ public class LexicographerFileCreator {
                     continue;
 
                 incorporated.add(ale);
-                senseCounts.count(new Duple<String,POS>(lemma, ale.getPos()));
+                senseCounts.count(lemma);
                 sb.append(lemmaId).append(", ");
             }
             sb.append(entry.substring(firstSpaceIndex+2));
@@ -1463,7 +1459,7 @@ public class LexicographerFileCreator {
                     continue;
 
                 incorporated.add(ale);
-                senseCounts.count(new Duple<String,POS>(lemma, ale.getPos()));
+                senseCounts.count(lemma);
                 sb.append(lemmaId).append(", ");
             }
             sb.append(entry.substring(bracketEnd+2));

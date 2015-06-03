@@ -146,7 +146,7 @@ public class CrownCreator {
 
         // TODO: one day replace this with ADW when it proves fast enough, or at
         // least test it out, whre possible
-        SimilarityFunction gst =
+        InvFreqSimilarity gst =
             // new GreedyStringTiling(4);
             new InvFreqSimilarity(entries, dict);
 
@@ -187,6 +187,10 @@ public class CrownCreator {
             dict.close(); // close old version
             dict = WordNetUtils.open(curDictDir);
 
+            // Update the similarity model based on the new dictionary
+            if (iterNum > 0)
+                gst.reset(dict, entries);
+            
             // Update the integration pipeline so that it uses the new
             // dictionary for determining presence in CROWN.  This lets us attach
             // new items in this iteration as children of previously-added new
@@ -264,6 +268,7 @@ public class CrownCreator {
             // relations added by this round
             curDictDir = nextDictDir;
             curLexFileDir = updatedLexFileDir;
+
         }
     }
 
