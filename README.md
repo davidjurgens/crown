@@ -58,8 +58,9 @@ documentation.
   * [David Jurgens](http://cs.mcgill.ca/~jurgens), McGill University
   * [Mohammad Taher Pilehvar](http://www.pilevar.com/taher/), Sapienza University of Rome
 
-CROWN is also not possible without the extensive effort by the WordNet team in
-creating the resource and the Wiktionary community in creating and maintaining a
+CROWN is also not possible without the extensive effort by the [WordNet
+team](http://wordnet.princeton.edu/wordnet/about-wordnet/) in creating the
+resource and the Wiktionary community in creating and maintaining a
 community-constructed dictionary.
 
 # Contact
