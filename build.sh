@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Check for grind
 hash grind 2>/dev/null || { echo >&2 "WN Grind is required but it's not installed.  Aborting."; exit 1; }
 
@@ -57,27 +56,32 @@ INPUT_ARGS=""
 DEFAULT_PREPROCESSED_INPUT_FILE=data/wiktionary.preprocessed.json
 DEFAULT_UKP_INPUT_DIR=data/wiktionary-ukp-dir
 DEFAULT_WIKTIONARY_FILE=data/enwiktionary-latest-pages-articles.xml
+DEFAULT_WIKI_OUT_DIR=data
 
 if [ -e "$DEFAULT_PREPROCESSED_INPUT_FILE" ] ; then
     INPUT_ARGS="-p $DEFAULT_PREPROCESSED_INPUT_FILE"
 elif [ -d "$DEFAULT_UKP_INPUT_DIR" ] ; then
     INPUT_ARGS="-u $DEFAULT_UKP_INPUT_DIR -P $DEFAULT_PREPROCESSED_INPUT_FILE"
 elif [ -e "$DEFAULT_WIKTIONARY_FILE" ] ; then
-    INPUT_ARGS="-w $DEFAULT_WIKTIONARY_FILE  -P $DEFAULT_PREPROCESSED_INPUT_FILE"
+    INPUT_ARGS="-w $DEFAULT_WIKTIONARY_FILE -U $DEFAULT_WIKI_OUT_DIR  -P $DEFAULT_PREPROCESSED_INPUT_FILE"
 else
     pushd $WORKING_FILE_DIR
     echo "No wiktionary data seems to be locally present in any format; downloading latest dump..."
     wget http://dumps.wikimedia.org/enwiktionary/latest/enwiktionary-latest-pages-articles.xml.bz2
     bunzip2 enwiktionary-latest-pages-articles.xml.bz2
-    popd
+    mv enwiktionary-latest-pages-articles.xml $DEFAULT_WIKTIONARY_FILE
+	popd
     INPUT_ARGS="-w $DEFAULT_WIKTIONARY_FILE -P $DEFAULT_PREPROCESSED_INPUT_FILE"
 fi
 
 echo "Compiling the CROWN Build"
 mvn package -Dmaven.javadoc.skip=true >/dev/null
 
-java -jar target/crown-2.0.0-jar-with-dependencies.jar $INPUT_ARGS -T $WORKING_FILE_DIR $WORDNET_DIR $LEXFILE_DIR $CROWN_DICT_DIR
+CMD="java -jar target/crown-2.0.0-jar-with-dependencies.jar $INPUT_ARGS -T $WORKING_FILE_DIR $WORDNET_DIR $LEXFILE_DIR $CROWN_DICT_DIR"
 
+echo $CMD
+
+$CMD
 
 # If we ended up having download the Wiktionary dump, delete it once the build
 # finishes since we've saved the data in a preprocessed format.
