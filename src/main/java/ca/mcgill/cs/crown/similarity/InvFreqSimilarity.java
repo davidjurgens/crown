@@ -87,8 +87,7 @@ public class InvFreqSimilarity implements SimilarityFunction {
 
         lemmaToWeight = new TObjectDoubleHashMap<String>(entries.size());
         // NOTE: make this some kind of proper cache?
-        stringToLemmasCache = new HashMultiMap<String,String>(500_000);
-    
+        stringToLemmasCache = new HashMultiMap<String,String>();
         java.util.Properties props = new java.util.Properties();
         props.put("annotators", "tokenize, ssplit, pos, lemma");
         pipeline = new StanfordCoreNLP(props);
