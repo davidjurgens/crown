@@ -64,9 +64,12 @@ import edu.mit.jwi.item.POS;
 public class WiktionaryReader {
 
     public List<LexicalEntry> loadFromDump(File wiktionaryXmlDump,
-                                           File outputWiktionaryDir,
+                                           File owd,
                                            File outputPreprocessedFile)
             throws IOException {
+
+        // Use the parent directory of outputPreprocessedFile for output if unspecified
+        File outputWiktionaryDir = (owd != null) ? owd : outputPreprocessedFile.getParentFile();
 
         // Sanity check that we're not needlessly extracting from the dump file
         // by seeing if the directory already contains the extracted data
