@@ -272,15 +272,15 @@ public class ParseExtractor implements EnrichmentProcedure {
         next_root:
         for (IndexedWord root : roots) {
             String word = root.get(TextAnnotation.class);
-            String lemma = root.get(LemmaAnnotation.class);
+            String lm = root.get(LemmaAnnotation.class);
             String pos = root.get(PartOfSpeechAnnotation.class);
             char lemmaPos = pos.substring(0,1).toLowerCase().charAt(0);
-            
-            String lemmaLc = lemma.toLowerCase();
+
+            // null check
+            String lemma = (lm != null) ? lm.toLowerCase() : "";
 
             //System.out.println("testing: " + lemma + "/" + pos);
-            
-            
+
             // If the lemma is a verb, check for phrasal verbal particle (e.g.,
             // "lead on", "edge out") and if present, add them to the lemma
             if (lemmaPos == 'v') {
