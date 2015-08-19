@@ -291,6 +291,10 @@ public class LexicographerFileCreator {
         integrated.addAll(
             createExceptionFiles(exceptionOps, oldDictDir, newDictDir));
 
+        // Helpful debugging code for trying to determing why exactly grind is
+        // crashing (which is often :( )
+        /*
+          
         PrintWriter tmp = new PrintWriter("sense-counts.tsv");
         for (Map.Entry<String,Integer> e9 : senseCounts) {
             //Duple<String,POS> d = e9.getKey();
@@ -303,6 +307,7 @@ public class LexicographerFileCreator {
             tmp.println(e9.getKey() + "\t" + e9.getValue());
         }
         tmp.close();
+        */
         
         return integrated;
     }

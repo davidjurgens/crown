@@ -16,7 +16,9 @@ import java.io.PrintWriter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import edu.ucla.sspace.util.LineReader;
 
@@ -102,6 +104,10 @@ public class Grind {
             if (name.startsWith("data.") || name.startsWith("index."))
                 Files.copy(f, new File(newDictDir, name));                
         }
+
+        // Create the new lexnames file, which is a mapping between file offset
+        // and the lexicography file name.
+        createLexnames(curDictDir, newDictDir, lexFileDir);
         
         // Copy over the verb sentence indices.  We don't actually modify
         // these (though we could) and for verb frames, list a default
@@ -112,6 +118,58 @@ public class Grind {
                    new File(newDictDir, "sentidx.vrb"));
     }
 
+    /**
+     * Creates the lexnames file based on the new lexicographer files that were
+     * introduced through the build process.
+     */
+    private void createLexnames(File curDictDir, File newDictDir,
+                                File lexFileDir) throws IOException {
+
+        PrintWriter lexnamesPw =
+            new PrintWriter(new File(newDictDir, "lexnames"));
+        
+        Set<String> includedFiles = new HashSet<String>();
+        int maxId = 0;
+        
+        for (String line : new LineReader(new File(curDictDir, "lexnames"))) {
+            String[] arr = line.split("\t");
+            includedFiles.add(arr[1]);
+            int id = Integer.parseInt(arr[0]);
+            if (maxId < id)
+                maxId = id;
+            // Print out the existing contents
+            lexnamesPw.println(line);
+        }
+
+        // Scan for new lexicographer files and add them to the list
+        for (File f : lexFileDir.listFiles()) {
+            String name = f.getName();
+            if (includedFiles.contains(name))
+                continue;
+
+            // Lexnames uses a 1-digit ID for indicating the content of the
+            // files
+            int syntacticCategoryId = -1;
+            if (name.startsWith("noun"))
+                syntacticCategoryId = 1;
+            else if (name.startsWith("verb"))
+                syntacticCategoryId = 2;
+            else if (name.startsWith("adj"))
+                syntacticCategoryId = 3;
+            else if (name.startsWith("adv"))
+                syntacticCategoryId = 4;
+
+            // Skip other files in the directory that aren't lex files
+            if (syntacticCategoryId < 0)
+                continue;
+
+            int id = ++maxId;
+            lexnamesPw.printf("%02d\t%s\t%d%n", id, name, syntacticCategoryId);
+        }
+
+        lexnamesPw.close();
+    }
+    
     /**
      * A utility class for consuming the output of an input stream and recording
      * it in a buffer.

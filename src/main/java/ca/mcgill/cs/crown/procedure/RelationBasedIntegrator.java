@@ -167,6 +167,7 @@ public class RelationBasedIntegrator implements EnrichmentProcedure {
             r.set("relation_type", "synonym");
             r.set("heuristic", "single-synonym");
             r.set("max_score", maxScore);
+            r.set("synonyms", lemmasInWn);
             return new Duple<CrownOperations.Reason,ISynset>(r, best);           
         }
 
@@ -189,6 +190,7 @@ public class RelationBasedIntegrator implements EnrichmentProcedure {
                 r.set("relation_type", "synonym");
                 r.set("heuristic", "unambiguous-max");
                 r.set("count", mostFreqCount);
+                r.set("synonyms", lemmasInWn);                
                 return new Duple<CrownOperations.Reason,ISynset>(r, mostFreq);
             }
             // Otherwise, we try breaking ties between the synsets using gloss
@@ -213,6 +215,7 @@ public class RelationBasedIntegrator implements EnrichmentProcedure {
                 r.set("relation_type", "synonym");
                 r.set("heuristic", "tied-synonyms");
                 r.set("max_score", maxScore);
+                r.set("synonyms", lemmasInWn);                
                 return new Duple<CrownOperations.Reason,ISynset>(r, best);
             }
         }

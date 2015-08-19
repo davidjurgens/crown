@@ -441,7 +441,9 @@ public class WordNetUtils {
         // Load the WN library
         try {
             IDictionary dict = new edu.mit.jwi.Dictionary(wnDictDir.toURI().toURL());
-            dict.open();
+            if (!dict.open()) {
+                throw new Error("Unable to open dictionary at " + wnDictDir);
+            }
             ICachingDictionary cache = new CachingDictionary(dict);
             cache.getCache().setEnabled(true);
             cache.getCache().setMaximumCapacity(500_000);
