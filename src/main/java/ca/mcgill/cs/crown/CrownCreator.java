@@ -289,6 +289,11 @@ public class CrownCreator {
             e -> tryIntegrate(e, pipeline, entryToIntegration, operationFreqs,
                               numEntriesAttached, numEntriesProcessed));
 
+        CrownLogger.verbose("Finished processing %d entries, " +
+                            "attached %d tentatively",
+                            numEntriesProcessed.get(),
+                            numEntriesAttached.get());        
+        
         List<AnnotatedLexicalEntry> toIntegrate =
             new ArrayList<AnnotatedLexicalEntry>(entryToIntegration.values());
         
