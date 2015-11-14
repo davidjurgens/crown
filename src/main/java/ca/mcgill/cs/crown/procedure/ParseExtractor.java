@@ -27,8 +27,11 @@ import ca.mcgill.cs.crown.LexicalEntry;
 
 import ca.mcgill.cs.crown.similarity.SimilarityFunction;
 
-import ca.mcgill.cs.crown.util.WiktionaryUtils;
+
 import ca.mcgill.cs.crown.util.CrownLogger;
+import ca.mcgill.cs.crown.util.CoreNlpUtils;
+import ca.mcgill.cs.crown.util.Stopwords;
+import ca.mcgill.cs.crown.util.WiktionaryUtils;
 import ca.mcgill.cs.crown.util.WordNetUtils;
 
 import edu.stanford.nlp.util.*;
@@ -55,16 +58,12 @@ public class ParseExtractor implements EnrichmentProcedure {
     // against weird puncutation (it happens :(  )
     private static final Pattern WHO = Pattern.compile("\\bwho\\b");
     
-
+    private static final double MAX_DISTINCT_SIMILARITY = 0.3; // conservative
+    
     /**
      * The similarity function used to compare the glosses of entries.
      */
     private final SimilarityFunction simFunc;
-
-    /**
-     * The CoreNLP pipeline used to parse glosses
-     */
-    private final StanfordCoreNLP pipeline;
 
     /**
      * The dictionary into which entries are to be integrated.
@@ -76,15 +75,16 @@ public class ParseExtractor implements EnrichmentProcedure {
                           SimilarityFunction simFunc) {
         this.dict = dict;
         this.simFunc = simFunc;
-        java.util.Properties props = new java.util.Properties();
-        props.put("annotators", "tokenize, ssplit, pos, lemma, parse");
-        pipeline = new StanfordCoreNLP(props);        
     }
 
     /**
      * TODO
      */
     public AnnotatedLexicalEntry integrate(LexicalEntry e) {
+
+        // if (isTooSimilarToExistingDefinitions(e))
+        //     return null;
+
         MultiMap<String,String> lemmaToHeuristics =
             getCandidateHypernyms(e);
 
@@ -135,7 +135,7 @@ public class ParseExtractor implements EnrichmentProcedure {
                 // Check that this sense isn't already in WN near where we're
                 // trying to put it
                 if (WordNetUtils.isAlreadyInWordNet(dict, e.getLemma(),
-                                                    pos, best))
+                                                    pos, candidate))
                     continue;
                 
                 String wnExtendedGloss =
@@ -170,6 +170,27 @@ public class ParseExtractor implements EnrichmentProcedure {
 
         return ale;
     }
+
+    /**
+     *
+     */
+    private boolean isTooSimilarToExistingDefinitions(LexicalEntry e) {
+        POS pos = e.getPos();
+        String lemma = e.getLemma();
+        String entGloss = e.getAnnotations().get(CrownAnnotations.Gloss.class);
+        
+        for (ISynset syn : WordNetUtils.getSynsets(dict, lemma, pos)) {
+            String wnGloss =
+                WordNetUtils.getGlossWithoutExamples(syn);
+            double sim = simFunc.compare(entGloss, wnGloss);
+            if (sim > MAX_DISTINCT_SIMILARITY) {
+                // System.out.printf("%s is too similar to the existing sense gloss: %s%n",
+                //                   e, wnGloss);
+                return true;
+            }
+        }
+        return false;
+    }
     
     private MultiMap<String,String> getCandidateHypernyms(LexicalEntry e) {
         
@@ -197,7 +218,7 @@ public class ParseExtractor implements EnrichmentProcedure {
             
             // Parse the subdefintion
             Annotation document = new Annotation(cleanedGloss);
-            pipeline.annotate(document);
+            CoreNlpUtils.get().annotate(document);
             List<CoreMap> sentences = document.get(SentencesAnnotation.class);
             
             // In some rare cases, a subdefinition could had multiple sentences.
@@ -279,6 +300,18 @@ public class ParseExtractor implements EnrichmentProcedure {
             // null check
             String lemma = (lm != null) ? lm.toLowerCase() : "";
 
+            // Skip considering words where the lemma is a stopword
+            if (Stopwords.STOP_WORDS.contains(lemma))
+                continue;
+
+
+            // Skip considering words where the lemma is known to be a word that
+            // causes lots of bad attachments.  Other higher precision rules may
+            // still attach this Entry, but since the ParseExtract is a
+            // high-recall procedure, we try to avoid noise here.
+            if (Stopwords.HYPERNYM_WORDS_TO_AVOID.contains(lemma))
+                continue;
+            
             //System.out.println("testing: " + lemma + "/" + pos);
 
             // If the lemma is a verb, check for phrasal verbal particle (e.g.,

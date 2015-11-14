@@ -130,7 +130,12 @@ public class WiktionaryUtils {
         }
         m.appendTail(sb);
         gloss = sb.toString().replace("\\$", "$");
-    
+
+        // Replace the non-ASCII quotation marks
+        gloss = gloss.replaceAll("[“”]", "\"");
+
+        gloss = gloss.replace("<ref name=SOED/>", "").trim();
+        
         if (!removeMarkup)
             return gloss;
 

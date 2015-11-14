@@ -124,7 +124,7 @@ public class WiktionaryReader {
         for (JSONObject jo : rawEntries) {
             try {
                 String posStr = jo.getString("pos").toUpperCase();
-                String lemma = jo.getString("lemma");
+                String lemma = jo.getString("lemma").replace(" ", "_");
                 String id = jo.getString("id");
                 // Check for duplicates
                 if (alreadyIncluded.contains(lemma + "." + posStr + ":" + id)) {

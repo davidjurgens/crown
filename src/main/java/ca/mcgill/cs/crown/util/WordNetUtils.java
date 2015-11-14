@@ -156,8 +156,46 @@ public class WordNetUtils {
 
     static final Matcher ALL_WHITESPACE = Pattern.compile("[\\s]+").matcher("");
 
+    /**
+     * Returns the best-effort set of synsets that could be matched to this
+     * lemma and part of speech, allow for some lexical variation, such as the
+     * whether the lemma is separated with spaces or hypens.  In the case of
+     * multi-word expressions, this method will also attempt different stemming
+     * forms for the individual words as well in order to find a matching
+     * synset.
+     *
+     * @return the set of sysnets that fuzzy-match this lemma and have the same
+     *         part of speech or the empty set, if no matches were found.
+     */
     public synchronized static Set<ISynset>
            getSynsets(IDictionary dict, String lemma, POS pos) {
+
+        if (lemma.contains("_")) {
+            Set<ISynset> tmp = new HashSet<ISynset>();
+            tmp.addAll(getSynsets_(dict, lemma, pos));
+            tmp.addAll(getSynsets_(dict, lemma.replace("_", " "), pos));
+            tmp.addAll(getSynsets_(dict, lemma.replace("_", "-"), pos));
+            return tmp;
+        }
+        else if (lemma.contains("-")) {
+            Set<ISynset> tmp = new HashSet<ISynset>();
+            tmp.addAll(getSynsets_(dict, lemma, pos));
+            tmp.addAll(getSynsets_(dict, lemma.replace("-", " "), pos));
+            return tmp;
+        }
+        else if (lemma.contains(" ")) {
+            Set<ISynset> tmp = new HashSet<ISynset>();
+            tmp.addAll(getSynsets_(dict, lemma, pos));
+            tmp.addAll(getSynsets_(dict, lemma.replace(" ", "-"), pos));
+            return tmp;
+        }
+        else {
+            return getSynsets_(dict, lemma, pos);
+        }
+    }
+    
+    private synchronized static Set<ISynset>
+            getSynsets_(IDictionary dict, String lemma, POS pos) {
         
         Set<ISynset> synsets = new LinkedHashSet<ISynset>();
 
@@ -176,6 +214,8 @@ public class WordNetUtils {
         if (iw != null) {
             for (IWordID wordId : iw.getWordIDs()) {                   
                 ISynset synset = dict.getSynset(wordId.getSynsetID());
+                assert synset != null
+                    : "Found null synset for " + lemma + "." + pos;
                 synsets.add(synset);
             }
         }
@@ -188,6 +228,8 @@ public class WordNetUtils {
                 if (iw != null) {
                     for (IWordID wordId : iw.getWordIDs()) {                   
                         ISynset synset = dict.getSynset(wordId.getSynsetID());
+                        assert synset != null
+                            : "Found null synset for " + lemma + "." + pos;                        
                         synsets.add(synset);
                     }
                 }
@@ -205,6 +247,8 @@ public class WordNetUtils {
                 if (iw != null) {
                     for (IWordID wordId : iw.getWordIDs()) {                   
                         ISynset synset = dict.getSynset(wordId.getSynsetID());
+                        assert synset != null
+                            : "Found null synset for " + lemma + "." + pos;                        
                         synsets.add(synset);
                     }
                 }
@@ -222,11 +266,15 @@ public class WordNetUtils {
                 if (iw != null) {
                     for (IWordID wordId : iw.getWordIDs()) {                   
                         ISynset synset = dict.getSynset(wordId.getSynsetID());
+                        assert synset != null
+                            : "Found null synset for " + lemma + "." + pos;
                         synsets.add(synset);
                     }
                 }
             }
         }
+
+        // System.out.printf("%s.%s -> %s%n", lemma, pos, synsets);
         
         return synsets;
     }
@@ -317,10 +365,10 @@ public class WordNetUtils {
         //     lemmaAndVariants.add(lemma.replace("-", ""));
         // }
 
-        // if (lemma.indexOf(' ') >= 0) {
-        //     lemmaAndVariants.add(lemma.replace(" ", "-"));
-        //     lemmaAndVariants.add(lemma.replace(" ", ""));
-        // }
+        if (lemma.indexOf('_') >= 0) {
+            lemmaAndVariants.add(lemma.replace("_", " "));
+            lemmaAndVariants.add(lemma.replace("_", "-"));
+        }
 
         Set<ISynset> targetSynsets =
             getSynsets(dict, lemmaAndVariants, pos);

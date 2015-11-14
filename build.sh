@@ -69,8 +69,8 @@ else
     echo "No wiktionary data seems to be locally present in any format; downloading latest dump..."
     wget http://dumps.wikimedia.org/enwiktionary/latest/enwiktionary-latest-pages-articles.xml.bz2
     bunzip2 enwiktionary-latest-pages-articles.xml.bz2
-    mv enwiktionary-latest-pages-articles.xml $DEFAULT_WIKTIONARY_FILE
-	popd
+    mv enwiktionary-latest-pages-articles.xml ../$DEFAULT_WIKTIONARY_FILE
+    popd
     INPUT_ARGS="-w $DEFAULT_WIKTIONARY_FILE -P $DEFAULT_PREPROCESSED_INPUT_FILE"
 fi
 

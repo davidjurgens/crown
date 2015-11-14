@@ -30,6 +30,7 @@ import edu.mit.jwi.IDictionary;
 
 import edu.mit.jwi.item.ISynset;
 import edu.mit.jwi.item.IWord;
+import edu.mit.jwi.item.IWordID;
 import edu.mit.jwi.item.POS;
 
 import edu.ucla.sspace.util.Counter;
@@ -105,13 +106,16 @@ public class LexicographerFileCreator {
         OPERATION_TO_SYMBOL.put(CrownOperations.Pertainym.class, "\\");
         OPERATION_TO_SYMBOL.put(CrownOperations.SimilarTo.class, "&");
         OPERATION_TO_SYMBOL.put(CrownOperations.MemberMeronym.class, "%m");
-        //OPERATION_TO_SYMBOL.put(CrownOperations.SubstanceMeronym, "%s");
+
         OPERATION_TO_SYMBOL.put(CrownOperations.PartMeronym.class, "%p");
         OPERATION_TO_SYMBOL.put(CrownOperations.DomainTopic.class, ";c");
-        // OPERATION_TO_SYMBOL.put(CrownOperations.DomainRegion, ";r");
-        // OPERATION_TO_SYMBOL.put(CrownOperations.DomainUsage, ";u");
         OPERATION_TO_SYMBOL.put(CrownOperations.DerivationallyRelated.class, "+");
         OPERATION_TO_SYMBOL.put(CrownOperations.DerivedFromAdjective.class, "\\");
+
+        // OPERATION_TO_SYMBOL.put(CrownOperations.SubstanceMeronym, "%s");        
+        // OPERATION_TO_SYMBOL.put(CrownOperations.DomainRegion, ";r");
+        // OPERATION_TO_SYMBOL.put(CrownOperations.DomainUsage, ";u");
+        
     }  
 
     private final IDictionary dict;
@@ -162,6 +166,16 @@ public class LexicographerFileCreator {
 
                 for (IWord iw : syn.getWords()) {
                     senseCounts.count(iw.getLemma());
+
+                    // NOTE: I think these somehow count against the maximum
+                    // number of allowed synset pointers (or at least somehow
+                    // factor into the dataset size) so we include them in the
+                    // pointer counts to be conservative just so Crown builds
+                    // -dj
+                    for (List<IWordID> related : iw.getRelatedMap().values()) {
+                        if (!related.isEmpty())
+                            pointerCounts.count(syn, related.size());
+                    }
                 }                                                    
             }
         }
@@ -192,13 +206,16 @@ public class LexicographerFileCreator {
 
             // Do a bit of preprocessing to remove entries that have features
             // incompatible with grind's expectations.
-            if (!isValidEntry(ale))
+            if (!isValidEntry(ale)) {
+                // System.out.println("NOT A VALID ENTRY: " + ale);
                 continue;
+            }
 
 
             // Check that we haven't exceeded the maximum number of senses for
             // this lemma
             if (senseCounts.getCount(ale.getLemma()) > MAX_SENSES) {
+                // System.out.println("TOO MANY SENSES FOR " + ale.getLemma());
                 continue;
             }           
             
@@ -729,6 +746,8 @@ public class LexicographerFileCreator {
 
         String lemma = ale.getLemma();
 
+        // System.out.printf("LEMMA?: '%s'%n", lemma);
+        
         // Skip lemmas that invalidate WordNet's constraints
         if (!VALID_LEMMA.matcher(lemma).matches()
                 || lemma.length() >= MAX_LEMMA_LENGTH) 

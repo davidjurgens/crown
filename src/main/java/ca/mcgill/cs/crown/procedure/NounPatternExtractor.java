@@ -96,7 +96,7 @@ public class NounPatternExtractor implements EnrichmentProcedure {
                     
                     List<String> candidates = GlossUtils.extractNounCandidates(
                         dict, gloss, firstMatchingTerm, m.start(1));
-
+                    
                     // System.out.printf("%s ==> %s%n", gloss, candidates);
                     AnnotatedLexicalEntry ale =
                         findAttachment(candidates, e, gloss, heuristicName);

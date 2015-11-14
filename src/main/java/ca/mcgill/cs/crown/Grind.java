@@ -69,6 +69,12 @@ public class Grind {
         
         try {
             grindProcess.waitFor();
+
+            // This is an unfortunate sleep to avoid some race condition with
+            // the StreamConsumer where it's add lines to the output lists as we
+            // try to read them.
+            Thread.sleep(1000);
+            
         } catch (InterruptedException ie) {
             throw new IllegalStateException(ie);
         }

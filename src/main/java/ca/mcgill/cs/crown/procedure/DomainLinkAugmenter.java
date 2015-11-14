@@ -25,6 +25,8 @@ import ca.mcgill.cs.crown.AugmentationProcedure;
 import ca.mcgill.cs.crown.AnnotatedLexicalEntry;
 import ca.mcgill.cs.crown.CrownAnnotations;
 import ca.mcgill.cs.crown.CrownOperations;
+import ca.mcgill.cs.crown.EnrichmentProcedure;
+import ca.mcgill.cs.crown.LexicalEntry;
 
 import ca.mcgill.cs.crown.similarity.SimilarityFunction;
 

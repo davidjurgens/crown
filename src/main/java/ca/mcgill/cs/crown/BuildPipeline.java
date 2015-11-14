@@ -14,6 +14,8 @@ import java.util.Set;
 
 import edu.mit.jwi.IDictionary;
 
+import ca.mcgill.cs.crown.similarity.SimilarityFunction;
+
 
 public class BuildPipeline implements EnrichmentProcedure {
 
@@ -23,14 +25,18 @@ public class BuildPipeline implements EnrichmentProcedure {
 
     private IDictionary dictionary;
 
+    private SimilarityFunction simFunc;
+    
     public BuildPipeline() {
         procedures = new ArrayList<EnrichmentProcedure>();
         augmentationProcedures = new ArrayList<AugmentationProcedure>();
+        simFunc = null;
     }
 
     public BuildPipeline(Collection<EnrichmentProcedure> procedures) {
         this.procedures = new ArrayList<EnrichmentProcedure>(procedures);
-        augmentationProcedures = new ArrayList<AugmentationProcedure>();        
+        augmentationProcedures = new ArrayList<AugmentationProcedure>();
+        simFunc = null;
     }
     
     public void add(EnrichmentProcedure ep) {
@@ -59,6 +65,10 @@ public class BuildPipeline implements EnrichmentProcedure {
         return procedures;
     }
 
+    public IDictionary getDictionary() {
+        return dictionary;
+    }    
+    
     @Override public void setDictionary(IDictionary dictionary) {
         for (EnrichmentProcedure ep : procedures)
             ep.setDictionary(dictionary);
@@ -68,6 +78,14 @@ public class BuildPipeline implements EnrichmentProcedure {
         this.dictionary = dictionary;
     }
 
+    public void setSimilarityFunction(SimilarityFunction simFunc) {
+        this.simFunc = simFunc;
+    }
+
+    public SimilarityFunction getSimilarityFunction() {
+        return simFunc;
+    }
+    
     // /**
     //  * Applies each of the {@link EnrichmentProcedure} instances in order and
     //  * returns the first non-{@code null} {@code AnnotatedLexicalEntry}

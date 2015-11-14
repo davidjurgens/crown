@@ -18,21 +18,30 @@ public interface LexicalEntry {
 
     /**
      * Returns the identifier associated with this sense of the word.
+     *
+     * @return a string that uniquely identifies this entry
      */
     String getId();
 
     /**
-     * Returns the lemma for which the glosses describe a meaning.
+     * Returns the lemma for which the glosses describe a meaning.  Multi-word
+     * lemmas have their spaces replaced with the underscore character.
+     *
+     * @return the lemma for this entry
      */
     String getLemma();
 
     /**
      * Returns the part of speech of the lemma.
+     *
+     * @return the part of speech
      */
     POS getPos();
 
     /**
      * Returns the heterogeneous map of annotations on top of this entry
+     *
+     * @return the annotations for the entry
      */
     CoreMap getAnnotations();
 }

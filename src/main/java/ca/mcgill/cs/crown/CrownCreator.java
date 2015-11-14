@@ -68,6 +68,7 @@ import ca.mcgill.cs.crown.procedure.WikiMarkupExtractor;
 import ca.mcgill.cs.crown.similarity.GreedyStringTiling;
 import ca.mcgill.cs.crown.similarity.InvFreqSimilarity;
 import ca.mcgill.cs.crown.similarity.SimilarityFunction;
+import ca.mcgill.cs.crown.similarity.Word2VecSimilarity;
 
 import ca.mcgill.cs.crown.util.CrownLogger;
 import ca.mcgill.cs.crown.util.WordNetUtils;
@@ -83,6 +84,8 @@ public class CrownCreator {
 
     private static final int DEFAULT_NUM_ITERATIONS = 3;
 
+    private static final double MAX_DISTINCT_SIMILARITY = 0.3;
+    
     private final File wordNetDictDir;
 
     private final File wordNetLexFileDir;
@@ -146,9 +149,15 @@ public class CrownCreator {
 
         // TODO: one day replace this with ADW when it proves fast enough, or at
         // least test it out, whre possible
-        InvFreqSimilarity gst =
-            // new GreedyStringTiling(4);
-            new InvFreqSimilarity(entries, dict);
+        //
+        // TODO: let people specify the vector location
+        
+        //SimilarityFunction gst = new GreedyStringTiling(4);
+        SimilarityFunction gst = new Word2VecSimilarity(entries, dict,
+                new File("vectors/GoogleNews-vectors-negative300.bin"));
+
+        // InvFreqSimilarity gst = 
+        //     new InvFreqSimilarity(entries, dict);
 
         List<AnnotatedLexicalEntry> toIntegrate =
             new ArrayList<AnnotatedLexicalEntry>(500_000);
@@ -173,6 +182,9 @@ public class CrownCreator {
         
         // For adding pointers
         pipeline.add(new DomainLinkAugmenter(dict, gst));
+
+        // 
+        pipeline.setSimilarityFunction(gst);
         
         // TODO: re-order the pipeline based on accuracy
         
@@ -188,18 +200,20 @@ public class CrownCreator {
             dict = WordNetUtils.open(curDictDir);
 
             // Update the similarity model based on the new dictionary
-            if (iterNum > 0)
-                gst.reset(dict, entries);
+            if (iterNum > 0) {
+                //gst.reset(dict, entries);
+            }
             
             // Update the integration pipeline so that it uses the new
             // dictionary for determining presence in CROWN.  This lets us attach
             // new items in this iteration as children of previously-added new
             // items.
-            pipeline.setDictionary(dict);            
+            pipeline.setDictionary(dict);
+
 
             toIntegrate.clear();
             toIntegrate.addAll(foobar(entries, pipeline));
-
+            
             // This is where we will write the updated lexicographer files that
             // will contain data that has been merged in as well as new synsets.
             File updatedLexFileDir =
@@ -316,13 +330,25 @@ public class CrownCreator {
                               Counter<String> operationFreqs,
                               AtomicInteger numEntriesAttached,
                               AtomicInteger numEntriesProcessed) {
-        //System.out.printf("Trying to integrate with %s%n", Thread.currentThread());
-        AnnotatedLexicalEntry ale = pipeline.integrate(entry);
-        if (ale != null) {
-            entryToIntegration.put(entry, ale);
-            numEntriesAttached.incrementAndGet();
-            incrementOperationFreq(operationFreqs, ale);
-            // System.out.printf("%s ==> %s%n", entry, ale);
+
+        // Sanity check here that we're not going to be integrating an existing
+        // sense.  This method performs a gloss similarity comparison and tests
+        // whether the glosses differ by a minimum amount, which is set low
+        // enough to weed out many of the false-positive new sense integrations
+        // without adversely impacting the senses we can still learn (i.e.,
+        // favors higher recall in terms of how many sense are integrated).
+        if (!isTooSimilarToExistingDefinitions(
+                pipeline.getDictionary(), pipeline.getSimilarityFunction(),
+                entry)) {
+
+            //System.out.printf("Trying to integrate with %s%n", Thread.currentThread());
+            AnnotatedLexicalEntry ale = pipeline.integrate(entry);
+            if (ale != null) {
+                entryToIntegration.put(entry, ale);
+                numEntriesAttached.incrementAndGet();
+                incrementOperationFreq(operationFreqs, ale);
+                // System.out.printf("%s ==> %s%n", entry, ale);
+            }
         }
 
         if (numEntriesProcessed.incrementAndGet() % 10_000 == 0) {
@@ -353,6 +379,29 @@ public class CrownCreator {
                 }
             }
         }        
+    }
+
+    /**
+     *
+     */
+    private boolean isTooSimilarToExistingDefinitions(IDictionary dict,
+                                                      SimilarityFunction simFunc,
+                                                      LexicalEntry e) {
+        POS pos = e.getPos();
+        String lemma = e.getLemma();
+        String entGloss = e.getAnnotations().get(CrownAnnotations.Gloss.class);
+        
+        for (ISynset syn : WordNetUtils.getSynsets(dict, lemma, pos)) {
+            String wnGloss =
+                WordNetUtils.getGlossWithoutExamples(syn);
+            double sim = simFunc.compare(entGloss, wnGloss);
+            if (sim > MAX_DISTINCT_SIMILARITY) {
+                 // System.out.printf("%nToo similar to the existing sense gloss:%n%s%n%s%n%n",
+                 //                   e, wnGloss);
+                return true;
+            }
+        }
+        return false;
     }
     
     /**

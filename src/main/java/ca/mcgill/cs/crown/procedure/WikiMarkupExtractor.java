@@ -108,6 +108,8 @@ public class WikiMarkupExtractor implements EnrichmentProcedure {
 
     private AnnotatedLexicalEntry processRawNounGloss(LexicalEntry e) {
 
+        // System.out.println(e);
+        
         // Avoid trying to add new senses for nouns already in WN.  This ends up
         // being very noisy due to the limited gloss.
         if (WordNetUtils.isInWn(dict, e.getLemma(), POS.NOUN))
@@ -124,10 +126,13 @@ public class WikiMarkupExtractor implements EnrichmentProcedure {
 
             // Strip out the quotation marks of the raw gloss too
             rawGloss = rawGloss.replaceAll("[']{2,}", "").trim();
+
+            // System.out.println("RAW GLOSS: " + rawGloss);
             
             String cleanedGloss = g.getValue();
-            if (cleanedGloss.length() == 0)
+            if (cleanedGloss.length() == 0) {                
                 continue;
+            }
                        
             for (Map.Entry<Pattern,String> me
                      : NOUN_PATTERN_TO_NAME.entrySet()) {
@@ -147,7 +152,7 @@ public class WikiMarkupExtractor implements EnrichmentProcedure {
                         String tmp = firstMatchingTerm.substring(i+1);
                         firstMatchingTerm = tmp;
                     }
-
+                    
                     // System.out.printf("%s found initial match: %s%n",
                     //                   heuristicName, firstMatchingTerm);
                     List<String> candidates = GlossUtils.extractNounCandidates(

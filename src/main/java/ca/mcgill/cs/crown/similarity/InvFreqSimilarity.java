@@ -115,7 +115,7 @@ public class InvFreqSimilarity implements SimilarityFunction {
         // use them all, though this should probably be analyzed
         for(CoreMap sentence: sentences) {
             for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
-                String lemma = token.get(LemmaAnnotation.class);
+                String lemma = token.get(LemmaAnnotation.class).toLowerCase();
                 String pos = token.get(PartOfSpeechAnnotation.class);
                 char c = pos.substring(0,1).toLowerCase().charAt(0);
                 // Not sure if we need to pos tag... but at least avoid putting
@@ -123,7 +123,7 @@ public class InvFreqSimilarity implements SimilarityFunction {
                 if (c == 'n' || c == 'j' || c == 'r' 
                         || (c == 'v' && !STOP_VERBS.contains(lemma)))
                                        
-                    lemmas.add(lemma);
+                    lemmas.add(lemma + "." + c);
             }
         }
         synchronized(stringToLemmasCache) {
@@ -149,6 +149,10 @@ public class InvFreqSimilarity implements SimilarityFunction {
             if (s2lemmas.contains(s))
                 weightSum += lemmaToWeight.get(s);
         }
+
+        System.out.printf("%n%s -> %s%n%s -> %s%n :: %f%n", string1, s1lemmas,
+                          string2, s2lemmas, weightSum);
+        
         return weightSum;
     }
 

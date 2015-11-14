@@ -31,6 +31,7 @@ import ca.mcgill.cs.crown.CrownOperations;
 import ca.mcgill.cs.crown.similarity.SimilarityFunction;
 
 import ca.mcgill.cs.crown.util.CrownLogger;
+import ca.mcgill.cs.crown.util.Stopwords;
 import ca.mcgill.cs.crown.util.WordNetUtils;
 
 
@@ -145,6 +146,7 @@ public class AdjectivePatternExtractor implements EnrichmentProcedure {
         String firstMatchingTerm =
             m.group(1).replaceAll("[\\p{Punct}]+$", "").trim();
 
+        
         // But the term could be a MWE (e.g., "computer program"), so generate a
         // possible list of related noun concepts
         List<String> candidates = m(gloss, firstMatchingTerm);
@@ -152,6 +154,11 @@ public class AdjectivePatternExtractor implements EnrichmentProcedure {
 
         for (String pertainymLemma : candidates) {
             
+
+            // Avoid matching with stopwords, which can happen with 'a'
+            if (Stopwords.STOP_WORDS.contains(pertainymLemma))
+                continue;
+
             // Skip trying to attach senses for which we found they pertainym but
             // in which case that pertainym wasn't in WN/CROWN.
             if (!WordNetUtils.isInWn(dict, pertainymLemma, POS.NOUN)) {
