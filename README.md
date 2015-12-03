@@ -55,8 +55,8 @@ documentation.
 
 # Credits
 
-  * [David Jurgens](http://cs.mcgill.ca/~jurgens), McGill University
-  * [Mohammad Taher Pilehvar](http://www.pilevar.com/taher/), Sapienza University of Rome
+  * [David Jurgens](http://cs.stanford.edu/~jurgens), Stanford University
+  * [Mohammad Taher Pilehvar](http://www.pilevar.com/taher/), University of Cambridge 
 
 CROWN is also not possible without the extensive effort by the [WordNet
 team](http://wordnet.princeton.edu/wordnet/about-wordnet/) in creating the
